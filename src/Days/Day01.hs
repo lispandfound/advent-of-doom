@@ -21,19 +21,29 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = error "Not implemented yet!"
+inputParser = sepBy decimal endOfLine
 
 ------------ TYPES ------------
-type Input = Void
+type Input = [Integer]
 
-type OutputA = Void
+type OutputA = Maybe Integer
 
-type OutputB = Void
+type OutputB = OutputA
+
+
+findTargetSum :: Integer -> [Integer] -> Maybe Integer
+findTargetSum target = fmap fst . (U.!!? 0) . Map.toList . Map.filter (> 1) . U.freq . map (\x -> if x < target `div` 2 then target - x else x)
+
+target :: Integer
+target = 2020
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA = error "Not implemented yet!"
+partA = fmap prodFactor . findTargetSum target
+  where
+    prodFactor f = f * (target - f)
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB = error "Not implemented yet!"
+partB inp = fmap productFactors . find (isJust . snd) . map (\x -> (x, findTargetSum (target - x) inp)) $ inp
+  where productFactors (x, Just y) = x * y * (target - x - y)
