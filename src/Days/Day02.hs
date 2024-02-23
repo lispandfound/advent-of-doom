@@ -10,7 +10,8 @@ import qualified Data.Set as Set
 import Data.Vector (Vector)
 import qualified Data.Vector as Vec
 import qualified Util.Util as U
-
+import qualified Util.Parsers as Up
+import Data.Text as Text
 import qualified Program.RunDay as R (runDay, Day)
 import Data.Attoparsec.Text
 import Data.Void
@@ -21,19 +22,37 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = error "Not implemented yet!"
+inputParser = sepBy rule endOfLine
+  where rule = do
+          (low, high) <- Up.around decimal "-"
+          space
+          target <- letter
+          ": "
+          password <- Up.takeText letter
+          return $ Rule low high target password
 
 ------------ TYPES ------------
-type Input = Void
+data Rule = Rule {
+  low :: Int
+  , high :: Int
+  , target :: Char
+  , password :: Text
+                   } deriving (Show, Eq)
+type Input = [Rule]
 
-type OutputA = Void
+type OutputA = Int
 
-type OutputB = Void
+type OutputB = Int
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA = error "Not implemented yet!"
+partA = U.count ruleMatch
+  where ruleMatch r = let c = Text.count (Text.singleton $ target r) (password r) in
+           (low r <= c && c <= high r)
+
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB = error "Not implemented yet!"
+partB = U.count ruleMatch
+  where ruleMatch r = (password r `index` (low r - 1) == target r) `xor` (password r `index` (high r - 1) == target r)
+        xor = (/=)

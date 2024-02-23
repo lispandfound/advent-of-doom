@@ -1,7 +1,9 @@
 module Util.Parsers where
 
+import Data.Text
 import Data.Attoparsec.Text
 import Data.Map (Map)
+import Control.Applicative (many)
 import qualified Data.Map as Map
 
 {-
@@ -35,3 +37,9 @@ around p sep = do
   sep
   b <- p
   return (a, b)
+
+asText :: Parser String -> Parser Text
+asText = fmap pack
+
+takeText :: Parser Char -> Parser Text
+takeText = asText . many

@@ -73,3 +73,7 @@ mapBoundingBox m =
     (maximum . fmap fst . Map.keys $ m)
     (minimum . fmap snd . Map.keys $ m)
     (maximum . fmap snd . Map.keys $ m)
+
+
+count :: (a -> Bool) -> [a] -> Int
+count m = length . filter m
