@@ -4,6 +4,7 @@ module Util.Util where
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Debug.Trace (trace)
+import Data.Tree
 {- ORMOLU_ENABLE -}
 
 {-
@@ -77,3 +78,7 @@ mapBoundingBox m =
 
 count :: (a -> Bool) -> [a] -> Int
 count m = length . filter m
+
+paths :: Tree a -> [[a]]
+paths (Node v []) = [[v]]
+paths (Node v xs) = concatMap (map (v:) . paths) xs
