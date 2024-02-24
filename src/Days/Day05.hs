@@ -14,6 +14,7 @@ import qualified Util.Util as U
 import qualified Program.RunDay as R (runDay, Day)
 import Data.Attoparsec.Text
 import Data.Void
+import Control.Applicative
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
@@ -21,19 +22,24 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = error "Not implemented yet!"
+inputParser =  ((\row col -> 8 * row + col) <$> row <*> col) `sepBy` endOfLine
+  where row = foldl (\n d -> 2*n + d) 0 <$> count 7 (high 'B' <|> low 'F')
+        col = foldl (\n d -> 2*n + d) 0 <$> count 3 (high 'R' <|> low 'L')
+        high c = char c *> pure 1
+        low c = char c *> pure 0
 
 ------------ TYPES ------------
-type Input = Void
+type Input = [Int]
 
-type OutputA = Void
+type OutputA = Int
 
-type OutputB = Void
+type OutputB = Int
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA = error "Not implemented yet!"
+partA  = maximum
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB = error "Not implemented yet!"
+partB inp = maybe (-1) (\(l, _) -> l + 1) . find (\(l, r) -> r - l == 2) $ zip ids (tail ids)
+  where ids = sort inp
