@@ -14,6 +14,7 @@ import qualified Util.Util as U
 import qualified Program.RunDay as R (runDay, Day)
 import Data.Attoparsec.Text
 import Data.Void
+
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
@@ -21,19 +22,21 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = error "Not implemented yet!"
+inputParser = group `sepBy` (endOfLine *> endOfLine)
+  where group = ((Set.fromList <$> many1 letter) `sepBy` space)
 
 ------------ TYPES ------------
-type Input = Void
+type Input = [[Set Char]]
 
-type OutputA = Void
+type OutputA = Int
 
-type OutputB = Void
+type OutputB = Int
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA = error "Not implemented yet!"
+partA = sum . map (Set.size . Set.unions)
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB = error "Not implemented yet!"
+partB = sum . map (Set.size . intersections)
+  where intersections = foldl1 Set.intersection
