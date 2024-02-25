@@ -30,6 +30,8 @@ dependencies:
 - text
 - mtl
 - vector
+- fgl
+- exact-combinatorics
 
 library:
   source-dirs: src
