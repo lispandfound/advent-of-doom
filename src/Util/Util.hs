@@ -82,3 +82,10 @@ count m = length . filter m
 paths :: Tree a -> [[a]]
 paths (Node v []) = [[v]]
 paths (Node v xs) = concatMap (map (v:) . paths) xs
+
+findTargetSum :: (Integral a, Eq a) => a -> [a] -> Maybe a
+findTargetSum target = fmap fst . (!!? 0) . Map.toList . Map.filter (> 1) . freq . map (\x -> if x <= target `div` 2 then target - x else x)
+
+findJust :: (a -> Maybe b) -> [a] -> Maybe b
+findJust f = join . find isJust . map f
+

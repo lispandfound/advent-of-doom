@@ -30,20 +30,16 @@ type OutputA = Maybe Integer
 
 type OutputB = OutputA
 
-
-findTargetSum :: Integer -> [Integer] -> Maybe Integer
-findTargetSum target = fmap fst . (U.!!? 0) . Map.toList . Map.filter (> 1) . U.freq . map (\x -> if x < target `div` 2 then target - x else x)
-
 target :: Integer
 target = 2020
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA = fmap prodFactor . findTargetSum target
+partA = fmap prodFactor . U.findTargetSum target
   where
     prodFactor f = f * (target - f)
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB inp = fmap productFactors . find (isJust . snd) . map (\x -> (x, findTargetSum (target - x) inp)) $ inp
+partB inp = fmap productFactors . find (isJust . snd) . map (\x -> (x, U.findTargetSum (target - x) inp)) $ inp
   where productFactors (x, Just y) = x * y * (target - x - y)

@@ -1,7 +1,7 @@
 module Days.Day09 (runDay) where
 
 {- ORMOLU_DISABLE -}
-import Data.List
+import Data.List as L
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -21,19 +21,26 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = error "Not implemented yet!"
+inputParser = decimal `sepBy` endOfLine
 
 ------------ TYPES ------------
-type Input = Void
+type Input = [Int]
 
-type OutputA = Void
+type OutputA = Maybe Int
 
-type OutputB = Void
+type OutputB = Int
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA = error "Not implemented yet!"
+partA = fmap head . find (\(x:xs) -> not . isJust $ U.findTargetSum x xs ) . reverse . U.windows (n + 1) . reverse
+  where n = 25
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB = error "Not implemented yet!"
+partB inp = maximum s + minimum s
+  where
+    s = U.slice left right inp
+    Just (left, right) = U.findJust (findSumWithLeft target inp) [0..length inp - 1]
+    target = 29221323
+    findSumWithLeft n l i = if head partials == n then Just $ (i, i + length partials - 1) else Nothing
+      where partials = reverse . L.takeWhile (<= n) . scanl1 (+) . drop i $ l
