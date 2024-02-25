@@ -21,19 +21,23 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = error "Not implemented yet!"
+inputParser = Set.fromList <$> decimal `sepBy` endOfLine
 
 ------------ TYPES ------------
-type Input = Void
+type Input = Set Int
 
-type OutputA = Void
+type OutputA = Int
 
-type OutputB = Void
+type OutputB = Integer
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA = error "Not implemented yet!"
+partA inp = U.count (== 3) distribution * U.count (== 1) distribution
+  where devices = Set.fromList [0, Set.findMax inp + 3] `Set.union` inp
+        distribution = U.mapAdjacent (-) . Set.toDescList $ devices
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB = error "Not implemented yet!"
+partB inp = product . map ((`U.orderedPartitions` 3) . toInteger . length) . U.chunksByPredicate (==1) $ distribution
+  where devices = Set.fromList [0, Set.findMax inp + 3] `Set.union` inp
+        distribution = U.mapAdjacent (-) . Set.toDescList $ devices

@@ -4,7 +4,11 @@ module Util.Util where
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Debug.Trace (trace)
+import Data.List
+import Data.Maybe
+import Control.Monad
 import Data.Tree
+import Math.Combinatorics.Exact.Binomial
 {- ORMOLU_ENABLE -}
 
 {-
@@ -37,6 +41,14 @@ chunksOf n ls
   | null ls = []
   | length ls < n = [ls]
   | otherwise = (take n ls) : (chunksOf n (drop n ls))
+
+-- Returns all contiguous subsets of a list of the specified size
+-- All chunks are guaranteed to be of the specified size, the tails of the last n elements are not included
+windows :: Int -> [a] -> [[a]]
+windows n ls
+  | length ls < n = []
+  | otherwise = take n ls : windows n (tail ls)
+
 
 -- Splits a list into maximal contiguous chunks that satisfy the given predicate.
 -- For example:
@@ -89,3 +101,11 @@ findTargetSum target = fmap fst . (!!? 0) . Map.toList . Map.filter (> 1) . freq
 findJust :: (a -> Maybe b) -> [a] -> Maybe b
 findJust f = join . find isJust . map f
 
+slice :: Int -> Int -> [a] -> [a]
+slice i j = take (j - i + 1) . drop i
+
+mapAdjacent :: (a -> a -> b) -> [a] -> [b]
+mapAdjacent f l = map (uncurry f) $ zip l (tail l)
+
+orderedPartitions :: Integral a => a -> a -> a
+orderedPartitions n k = sum . map (choose (n - 1)) $ [0..k - 1]
