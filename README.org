@@ -1,0 +1,7 @@
+#+TITLE: Advent of Code Attempts
+
+This repository is the central repository for all my advent of code attempts. The repo is based on the excellent [[https://github.com/samcoy3/advent-of-code-template][advent of code template]] template repository.
+Each branch (=2020=, =2021=, =2022= and =2023=) contains that year's solutions, whilst the master branch contains the central template and shared utility functions useful for all years.
+
+The input for each year is not included at the [[https://www.reddit.com/r/adventofcode/comments/e7khy8/comment/fa13hb9/][request]] of the Advent of Code author. You will need to generate your own and put it in the =input/= folder.
+
