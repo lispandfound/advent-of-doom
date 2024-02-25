@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.35.0.
+-- This file has been generated from package.yaml by hpack version 0.34.5.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7a7f9450dea923a5226bc8f430781bec861ad44d76f67c5d21935198dc590e29
+-- hash: a791b90f67a2554f4e1ee51c5f61293d1e8f37b6b59f71dc73fb330e95ad2f7c
 
 name:           aoc-template
 version:        2023.0
@@ -74,6 +74,8 @@ library
     , base >=4.7 && <5
     , containers
     , directory
+    , exact-combinatorics
+    , fgl
     , mtl
     , optparse-applicative
     , parser-combinators
@@ -104,6 +106,8 @@ executable aoc-template-exe
     , base >=4.7 && <5
     , containers
     , directory
+    , exact-combinatorics
+    , fgl
     , mtl
     , optparse-applicative
     , parser-combinators
