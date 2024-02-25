@@ -20,17 +20,6 @@ This module contains a series of miscellaneous utility functions that I have fou
 freq :: (Ord a) => [a] -> Map a Int
 freq = Map.fromListWith (+) . fmap (,1)
 
--- Takes a nested list (to be thought of as a 2D structure).
--- Returns a map from "co-ordinates" to the items in the list.
--- For example:
---     Input: [[a,b,c],[d,e]]
---     Output: Map.fromList [((0,0),a), ((0,1),b), ((0,2),c), ((1,0),d), ((1,1),e)]
-mapFromNestedLists :: (Ord a) => [[a]] -> Map (Int, Int) a
-mapFromNestedLists = Map.fromList . attachCoords 0 0
-  where
-    attachCoords _ _ [] = []
-    attachCoords x _ ([] : ls) = attachCoords (x + 1) 0 ls
-    attachCoords x y ((l : ls) : lss) = ((x, y), l) : (attachCoords x (y + 1) (ls : lss))
 
 -- Splits a list into chunks of the specified size.
 -- The final chunk may be smaller than the chunk size.
@@ -109,3 +98,9 @@ mapAdjacent f l = map (uncurry f) $ zip l (tail l)
 
 orderedPartitions :: Integral a => a -> a -> a
 orderedPartitions n k = sum . map (choose (n - 1)) $ [0..k - 1]
+
+hammer :: Eq a => (a -> a) -> a -> a
+hammer f x
+  | x' == x = x'
+  | otherwise = hammer f x'
+  where x' = f x
