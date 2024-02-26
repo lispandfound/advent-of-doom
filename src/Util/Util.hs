@@ -104,3 +104,29 @@ hammer f x
   | x' == x = x'
   | otherwise = hammer f x'
   where x' = f x
+
+minimumOn :: Ord b => (a -> b) -> [a] -> a
+minimumOn f = minimumBy go
+  where go x y = compare (f x) (f y)
+
+
+egcd :: Integral a => a -> a -> (a, a)
+egcd a b = go a b 1 0 0 1
+  where
+    go _ 0 s _ t _ = (s, t)
+    go rp r sp s tp t = go r (rp - q * r) s (sp - q * s) t (tp - q * t)
+      where q = rp `div` r
+
+-- crt x1 x2 m1 m2 solves the simultaneous equation x = x1 mod m1, x = x2 mod m2 using the chinese remainder theorem
+-- assumes gcd m1 m2 == 1
+-- returns the smallest positive solution
+crt :: Integral a => a -> a -> a -> a -> a
+crt x1 x2 m1 m2 = mabs . (`mod` (m1 * m2)) $ x2 * s * m1 + x1 * t * m2
+  where (s, t) = egcd m1 m2
+        mabs x = if x > 0 then x else m1 * m2 - x
+
+-- crtSystem solves the simultaneous equations x = xi mod mi for some list [(xi, mi), ...]
+-- assumes gcd mi mj == 1
+-- returns the smallest positive solution
+crtSystem :: Integral a => [(a, a)] -> a
+crtSystem = fst . foldr1 (\(x1, m1) (x2, m2) -> (crt x1 x2 m1 m2, m1 * m2))

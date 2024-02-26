@@ -1,4 +1,5 @@
 module Util.Pair where
+import Control.Applicative
 
 newtype Pair a = Pair {getPair :: (a, a)}
   deriving (Show, Eq, Ord, Functor, Foldable, Traversable)
@@ -15,3 +16,15 @@ instance (Monoid a) => Monoid (Pair a) where
 
 (<+>) :: Num a => Pair a -> Pair a -> Pair a
 x <+> y = (+) <$> x <*> y
+
+manhattan :: Num a => Pair a -> a
+manhattan = uncurry (+) . getPair . fmap abs
+
+first :: (a -> a) -> Pair a -> Pair a
+first f = liftA2 id (Pair (f,id))
+
+second :: (a -> a) -> Pair a -> Pair a
+second g = liftA2 id (Pair (id,g))
+
+pmap :: ((a, a) -> (c, c)) -> Pair a -> Pair c
+pmap f = Pair . f . getPair
