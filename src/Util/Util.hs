@@ -130,3 +130,8 @@ crt x1 x2 m1 m2 = mabs . (`mod` (m1 * m2)) $ x2 * s * m1 + x1 * t * m2
 -- returns the smallest positive solution
 crtSystem :: Integral a => [(a, a)] -> a
 crtSystem = fst . foldr1 (\(x1, m1) (x2, m2) -> (crt x1 x2 m1 m2, m1 * m2))
+
+iterateM :: Monad m => (a -> m a) -> a -> m [a]
+iterateM f x = do
+    x' <- f x
+    (x':) `liftM` iterateM f x'
