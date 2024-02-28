@@ -9,6 +9,8 @@ import Data.Maybe
 import Control.Monad
 import Data.Tree
 import Math.Combinatorics.Exact.Binomial
+import qualified Data.Set as Set
+import Data.Graph.Inductive
 {- ORMOLU_ENABLE -}
 
 {-
@@ -135,3 +137,35 @@ iterateM :: Monad m => (a -> m a) -> a -> m [a]
 iterateM f x = do
     x' <- f x
     (x':) `liftM` iterateM f x'
+
+data MatchVerts = Source | Sink | U Int | V Int deriving (Show, Eq)
+
+
+instance Ord MatchVerts where
+  compare Source _ = LT
+  compare _ Source = GT
+  compare Sink _ = LT
+  compare _ Sink = GT
+  compare (U _) (V _) = LT
+  compare (V _) (U _) = GT
+  compare (U a) (U b) = compare a b
+  compare (V a) (V b) = compare a b
+
+
+matching ::  [(Int, Int)] -> Map Int Int
+matching edges = Map.fromList . mapMaybe (\case
+                              (0, _, _) -> Nothing
+                              (_, 1, _) -> Nothing
+                              (eu, ev, (1, _)) -> Just (eu - 2, ev - Set.size v - 2)
+                              _ -> Nothing) . labEdges $ maxFlowgraph g 0 1
+  where
+    u = Set.fromList (map (U . fst) edges)
+    v = Set.fromList (map (V . snd) edges)
+    verts = Set.toAscList $ Set.unions [Set.fromList [Source, Sink]
+                       , u
+                       , v]
+    g :: Gr MatchVerts Int
+    g = mkGraph (zip [0..] verts) (map edgeMap edges
+                                   ++ map (0,,1) [2..Set.size u + 1]
+                                   ++ map (,1,1) [Set.size u + 2 .. 2 * Set.size u + 1])
+    edgeMap (eu, ev) = (2 + eu, 2 + Set.size u + ev, 1)
