@@ -138,6 +138,12 @@ iterateM f x = do
     x' <- f x
     (x':) `liftM` iterateM f x'
 
+hammerN :: Eq a => Int -> (a -> a) -> a -> a
+hammerN 0 _ v = v
+hammerN n f v = let v' = f v in
+                 if v == v' then v else hammerN (n - 1) f v'
+
+
 data MatchVerts = Source | Sink | U Int | V Int deriving (Show, Eq)
 
 
