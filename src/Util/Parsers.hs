@@ -3,8 +3,9 @@ module Util.Parsers where
 import Data.Text
 import Util.Coordinates
 import Data.Attoparsec.Text
+import Data.List as List
 import Data.Map (Map)
-import Control.Applicative (many)
+import Control.Applicative (many, (<|>))
 import qualified Data.Map as Map
 
 {-
@@ -44,3 +45,17 @@ asText = fmap pack
 
 takeText :: Parser Char -> Parser Text
 takeText = asText . many
+
+chainr1 :: Parser a -> Parser (a -> a -> a) -> Parser a
+chainr1 term op = scan
+  where scan = term >>= rest
+        rest x = (op <*> pure x <*> scan) <|> pure x
+
+chainl1 :: Parser a -> Parser (a -> a -> a) -> Parser a
+chainl1 term op = scan
+  where scan = term >>= rest
+        rest x = ((op <*> pure x <*> term) >>= rest) <|> pure x
+
+
+countMatch :: Parser a -> Parser Int
+countMatch = fmap List.length . many1
