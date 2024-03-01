@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Program.RunDay (runDay, Day, Verbosity (Quiet, Timings, Verbose)) where
+module Program.RunDay (runDay, runDayAB, Day, Verbosity (Quiet, Timings, Verbose)) where
 
 import Control.Exception (SomeException, catch)
 import Control.Monad.Except
@@ -19,7 +19,40 @@ type Day = Verbosity -> String -> IO (Maybe Double, Maybe Double)
 
 runDay :: (Show a, Show b, Show i) => Parser i -> (i -> a) -> (i -> b) -> Program.RunDay.Day
 runDay inputParser partA partB verbosity inputFile = do
-  input <- runExceptT $ do
+  input <- parseInput inputParser inputFile verbosity
+  case input of
+    Left x -> withColor Red (putStrLn x) >> return (Nothing, Nothing)
+    Right i -> do
+      withColor Blue $ putStrLn "Part A:"
+      time1 <- getCurrentTime
+      successA <- catch (print (partA i) $> True) $
+        \(m :: SomeException) -> withColor Red $ do
+          putStrLn "Couldn't run Part A!"
+          when (verbosity == Verbose) $ print m
+          return False
+      time2 <- getCurrentTime
+
+      let timeA = realToFrac $ diffUTCTime time2 time1
+      when (verbosity >= Timings && successA) $ putStrLn $ printf "(%.2f)" timeA
+
+      withColor Blue $ putStrLn "Part B:"
+      successB <- catch (print (partB i) $> True) $
+        \(m :: SomeException) -> withColor Red $ do
+          putStrLn "Couldn't run Part B!"
+          when (verbosity == Verbose) $ print m
+          return False
+      time3 <- getCurrentTime
+
+      let timeB = realToFrac $ diffUTCTime time3 time2
+      when (verbosity >= Timings && successB) $ putStrLn $ printf "(%.2f)" timeB
+
+      return $
+        (,)
+          (if successA then Just timeA else Nothing)
+          (if successB then Just timeB else Nothing)
+
+parseInput :: Show i => Parser i -> FilePath -> Verbosity -> IO (Either String i)
+parseInput inputParser inputFile verbosity =  runExceptT $ do
     inputFileExists <- liftIO $ doesFileExist inputFile
     fileContents <-
       if inputFileExists
@@ -39,12 +72,17 @@ runDay inputParser partA partB verbosity inputFile = do
           liftIO $ print i
         return i
 
-  case input of
+
+runDayAB :: (Show a, Show b, Show i) => Parser i -> Parser i -> (i -> a) -> (i -> b) -> Program.RunDay.Day
+runDayAB inputParserA inputParserB partA partB verbosity inputFile = do
+  inputA <- parseInput inputParserA inputFile verbosity
+  inputB <- parseInput inputParserB inputFile verbosity
+  case (,) <$> inputA <*> inputB of
     Left x -> withColor Red (putStrLn x) >> return (Nothing, Nothing)
-    Right i -> do
+    Right (iA, iB) -> do
       withColor Blue $ putStrLn "Part A:"
       time1 <- getCurrentTime
-      successA <- catch (print (partA i) $> True) $
+      successA <- catch (print (partA iA) $> True) $
         \(m :: SomeException) -> withColor Red $ do
           putStrLn "Couldn't run Part A!"
           when (verbosity == Verbose) $ print m
@@ -55,7 +93,7 @@ runDay inputParser partA partB verbosity inputFile = do
       when (verbosity >= Timings && successA) $ putStrLn $ printf "(%.2f)" timeA
 
       withColor Blue $ putStrLn "Part B:"
-      successB <- catch (print (partB i) $> True) $
+      successB <- catch (print (partB iB) $> True) $
         \(m :: SomeException) -> withColor Red $ do
           putStrLn "Couldn't run Part B!"
           when (verbosity == Verbose) $ print m
