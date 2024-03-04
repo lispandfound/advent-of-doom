@@ -16,6 +16,7 @@ import qualified Util.Parsers as Up
 import qualified Program.RunDay as R (runDay, Day)
 import Data.Attoparsec.Text
 import Data.Void
+import Data.Functor
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
@@ -23,7 +24,7 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = Up.coordinateParser (\x -> if x == '#' then Just Tree else Nothing) 0
+inputParser = Up.coordinateParser (choice ["#" $> pure Tree, anyChar $> Nothing]) 0
 
 ------------ TYPES ------------
 data Tree = Tree deriving (Show)

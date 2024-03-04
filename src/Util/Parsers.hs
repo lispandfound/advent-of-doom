@@ -13,22 +13,20 @@ This module contains a list of parsers and combinators which are likely to be us
 -}
 
 ------------ PARSERS ------------
-
 -- Takes a "mapper" "function that might map a char to a datatype, and an initial index (usually 0 or 1)
 -- Returns a parser that returns a map from coordinates to all instances where the function returns Just
-coordinateParser :: (Char -> Maybe a) -> Int -> Parser (CoordinateMap a)
-coordinateParser mapper start = coordinateParser' start start
+coordinateParser :: Parser (Maybe a) -> Int -> Parser (CoordinateMap a)
+coordinateParser p start = coordinateParser' start start
   where
     coordinateParser' x y =
       choice
         -- First we look for a line break, and we reset the coordinates appropriately
         [ endOfLine >> coordinateParser' start (y + 1),
           -- Then we look for a character, and map it
-          anyChar >>= (\c -> addToMap mapper x y c <$> coordinateParser' (x + 1) y),
+          p >>= (\c -> Map.alter (const c) (x, y) <$> coordinateParser' (x + 1) y),
           -- Catches the EOF
           return Map.empty
         ]
-    addToMap mapper x y c = Map.alter (const (mapper c)) (x, y)
 
 ------------ COMBINATORS ------------
 

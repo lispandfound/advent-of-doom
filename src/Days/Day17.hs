@@ -16,6 +16,8 @@ import Data.Attoparsec.Text
 import Data.Void
 import Data.Bifunctor (Bifunctor(first))
 import Util.Util (hammerN)
+import Data.Functor
+import Control.Applicative
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
@@ -23,9 +25,7 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = Set.fromList . map (uncurry (,,0) . fst) . Map.toList <$> coordinateParser (\case
-                                   '#' -> Just True
-                                   _ -> Nothing) 0
+inputParser = Set.fromList . map (uncurry (,,0) . fst) . Map.toList <$> coordinateParser (("#" $> pure True) <|> (anyChar $> Nothing)) 0
 
 ------------ TYPES ------------
 type Input = Set (Int, Int, Int)

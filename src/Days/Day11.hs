@@ -15,6 +15,7 @@ import qualified Util.Parsers as Up
 import qualified Program.RunDay as R (runDay, Day)
 import Data.Attoparsec.Text
 import Data.Void
+import Data.Functor
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
@@ -22,10 +23,9 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser =  Up.coordinateParser (\case
-                                      'L' -> Just Empty
-                                      '#' -> Just Occupied
-                                      '.' -> Just Floor) 0
+inputParser =  Up.coordinateParser (choice ["L" $> pure Empty
+                                           , "#" $> pure Occupied
+                                           , "." $> pure Floor]) 0
 
 
 

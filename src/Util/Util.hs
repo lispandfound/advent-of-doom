@@ -69,6 +69,9 @@ list !!? index =
       | index >= (length list) -> Nothing
       | otherwise -> Just $ list !! index
 
+findMaybe :: (a -> Maybe b) -> [a] -> Maybe b
+findMaybe f = (!!? 0) . mapMaybe f
+
 -- Given a map where the keys are co-ordinates, returns the minimum x, maximum x, minimum y, and maximum y; in that order.
 mapBoundingBox :: Map (Int, Int) a -> (Int, Int, Int, Int)
 mapBoundingBox m =
@@ -142,6 +145,15 @@ hammerN :: Eq a => Int -> (a -> a) -> a -> a
 hammerN 0 _ v = v
 hammerN n f v = let v' = f v in
                  if v == v' then v else hammerN (n - 1) f v'
+
+maximumOn :: (Ord b) => (a -> b) -> [a] -> a
+maximumOn f [] = error "empty list"
+maximumOn f (x:xs) = g x (f x) xs
+    where
+        g v mv [] = v
+        g v mv (x:xs) | mx > mv = g x mx xs
+                      | otherwise = g v mv xs
+            where mx = f x
 
 
 data MatchVerts = Source | Sink | U Int | V Int deriving (Show, Eq)
