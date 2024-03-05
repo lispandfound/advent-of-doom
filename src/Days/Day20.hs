@@ -18,10 +18,8 @@ import Data.Void
 import Util.Coordinates (CoordinateMap)
 import Util.Parsers (coordinateParser)
 import Data.Functor (($>))
-import Debug.Trace
 import Data.Bifunctor
 import Data.Graph.Inductive
-import Util.Util (traceShowIdWithContext)
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
@@ -141,7 +139,7 @@ glue :: [[CoordinateMap Text]] -> CoordinateMap Text
 glue tiles = Map.unions [mapKey (shift (ix * ux) (iy * uy)) ((tiles !! iy) !! ix) | ix <- [0..n - 1], iy <- [0..n - 1]]
   where
         (ux, uy) = fst . Map.findMax . head . head $ tiles
-        n = traceShowId $ length tiles
+        n =  length tiles
         shift dx dy (x, y) = (x + dx, y + dy)
 ------------ PART A ------------
 partA :: Input -> OutputA
@@ -156,7 +154,7 @@ seaMonsterSize :: Int
 seaMonsterSize = length [(0, 18), (1, 0), (1, 5), (1, 6), (1, 11), (1, 12), (1, 17), (1,18), (1, 19), (2, 1), (2, 4), (2, 7), (2, 10), (2, 13), (2, 16)]
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB tileMap = trace (showTile seaMonsterImage) roughness
+partB tileMap = roughness
   where
     -- Fix one corner because it doesn't matter
     tiles = Map.elems tileMap
