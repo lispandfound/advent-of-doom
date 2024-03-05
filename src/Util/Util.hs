@@ -2,6 +2,9 @@ module Util.Util where
 
 {- ORMOLU_DISABLE -}
 import Data.Map.Strict (Map)
+import Data.Set (Set)
+import Data.Tuple
+import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
 import Debug.Trace (trace)
 import Data.List
@@ -10,6 +13,7 @@ import Control.Monad
 import Data.Tree
 import Math.Combinatorics.Exact.Binomial
 import qualified Data.Set as Set
+import Control.Applicative
 import Data.Graph.Inductive
 {- ORMOLU_ENABLE -}
 
@@ -72,6 +76,8 @@ list !!? index =
 findMaybe :: (a -> Maybe b) -> [a] -> Maybe b
 findMaybe f = (!!? 0) . mapMaybe f
 
+intersections :: Ord a => [Set a] -> Set a
+intersections = foldr1 Set.intersection
 -- Given a map where the keys are co-ordinates, returns the minimum x, maximum x, minimum y, and maximum y; in that order.
 mapBoundingBox :: Map (Int, Int) a -> (Int, Int, Int, Int)
 mapBoundingBox m =
@@ -170,8 +176,8 @@ instance Ord MatchVerts where
   compare (V a) (V b) = compare a b
 
 
-matching ::  [(Int, Int)] -> Map Int Int
-matching edges = Map.fromList . mapMaybe (\case
+matchingInt ::  [(Int, Int)] -> Map Int Int
+matchingInt edges = Map.fromList . mapMaybe (\case
                               (0, _, _) -> Nothing
                               (_, 1, _) -> Nothing
                               (eu, ev, (1, _)) -> Just (eu - 2, ev - Set.size v - 2)
@@ -187,3 +193,25 @@ matching edges = Map.fromList . mapMaybe (\case
                                    ++ map (0,,1) [2..Set.size u + 1]
                                    ++ map (,1,1) [Set.size u + 2 .. 2 * Set.size u + 1])
     edgeMap (eu, ev) = (2 + eu, 2 + Set.size u + ev, 1)
+
+mapPair :: (Applicative f) => (a -> f c, b -> f d) -> (a,b) -> f (c,d)
+mapPair fg = uncurry (liftA2 (,)) . pmap fg
+  where pmap (f, g) (a, b) = (f a, g b)
+
+intMap :: Ord a => [a] -> Map a Int
+intMap = Map.fromList . (`zip` [0..])
+
+matching :: (Ord a, Ord b) => [(a, b)] -> Map a b
+matching edges = mapKVMay (mapPair ((`Map.lookup` ainvMap), (`Map.lookup` binvMap))) . matching . mapMaybe (mapPair ((`Map.lookup` aMap), (`Map.lookup` bMap))) $ edges
+  where
+    as = Set.toAscList . Set.fromList . map fst $ edges
+    bs = Set.toAscList . Set.fromList . map snd $ edges
+    aMap = intMap as
+    bMap = intMap bs
+    mapKVMay f = Map.fromList . mapMaybe f . Map.toList
+    invert = Map.fromList . map swap . Map.toList
+    binvMap = invert bMap
+    ainvMap = invert aMap
+
+mapFromFunction :: Ord a => (a -> b) -> [a] -> Map a b
+mapFromFunction f = Map.fromList . map (\x -> (x, f x))

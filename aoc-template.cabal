@@ -58,6 +58,7 @@ library
       Util.Pair
       Util.Parsers
       Util.Util
+      Util.Matching
   other-modules:
       Paths_aoc_template
   hs-source-dirs:
