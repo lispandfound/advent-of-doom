@@ -105,7 +105,7 @@ slice :: Int -> Int -> [a] -> [a]
 slice i j = take (j - i + 1) . drop i
 
 mapAdjacent :: (a -> a -> b) -> [a] -> [b]
-mapAdjacent f l = map (uncurry f) $ zip l (tail l)
+mapAdjacent f l = zipWith f l (tail l)
 
 orderedPartitions :: Integral a => a -> a -> a
 orderedPartitions n k = sum . map (choose (n - 1)) $ [0..k - 1]
@@ -116,7 +116,9 @@ hammer f x
   | otherwise = hammer f x'
   where x' = f x
 
-minimumOn :: Ord b => (a -> b) -> [a] -> a
+
+
+minimumOn :: (Foldable t, Ord b) => (a -> b) -> t a -> a
 minimumOn f = minimumBy go
   where go x y = compare (f x) (f y)
 
