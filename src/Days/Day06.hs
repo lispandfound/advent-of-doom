@@ -1,7 +1,7 @@
 module Days.Day06 (runDay) where
 
 {- ORMOLU_DISABLE -}
-import Data.List
+import Data.List as List
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -14,7 +14,8 @@ import qualified Util.Util as U
 import qualified Program.RunDay as R (runDay, Day)
 import Data.Attoparsec.Text
 import Data.Void
-
+import Data.Functor (($>))
+import Data.Bifunctor
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
@@ -22,21 +23,19 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = group `sepBy` (endOfLine *> endOfLine)
-  where group = ((Set.fromList <$> many1 letter) `sepBy` space)
+inputParser = error "Not implemented yet!"
 
 ------------ TYPES ------------
-type Input = [[Set Char]]
+type Input = Void
 
-type OutputA = Int
+type OutputA = Void
 
-type OutputB = Int
+type OutputB = Void
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA = sum . map (Set.size . Set.unions)
+partA = error "Not implemented yet!"
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB = sum . map (Set.size . intersections)
-  where intersections = foldl1 Set.intersection
+partB = error "Not implemented yet!"

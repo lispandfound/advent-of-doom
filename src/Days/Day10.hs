@@ -1,7 +1,7 @@
 module Days.Day10 (runDay) where
 
 {- ORMOLU_DISABLE -}
-import Data.List
+import Data.List as List
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -14,6 +14,8 @@ import qualified Util.Util as U
 import qualified Program.RunDay as R (runDay, Day)
 import Data.Attoparsec.Text
 import Data.Void
+import Data.Functor (($>))
+import Data.Bifunctor
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
@@ -21,23 +23,19 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = Set.fromList <$> decimal `sepBy` endOfLine
+inputParser = error "Not implemented yet!"
 
 ------------ TYPES ------------
-type Input = Set Int
+type Input = Void
 
-type OutputA = Int
+type OutputA = Void
 
-type OutputB = Integer
+type OutputB = Void
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA inp = U.count (== 3) distribution * U.count (== 1) distribution
-  where devices = Set.fromList [0, Set.findMax inp + 3] `Set.union` inp
-        distribution = U.mapAdjacent (-) . Set.toDescList $ devices
+partA = error "Not implemented yet!"
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB inp = product . map ((`U.orderedPartitions` 3) . toInteger . length) . U.chunksByPredicate (==1) $ distribution
-  where devices = Set.fromList [0, Set.findMax inp + 3] `Set.union` inp
-        distribution = U.mapAdjacent (-) . Set.toDescList $ devices
+partB = error "Not implemented yet!"

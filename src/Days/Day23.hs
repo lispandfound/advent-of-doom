@@ -1,7 +1,7 @@
 module Days.Day23 (runDay) where
 
 {- ORMOLU_DISABLE -}
-import Data.List
+import Data.List as List
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -14,6 +14,8 @@ import qualified Util.Util as U
 import qualified Program.RunDay as R (runDay, Day)
 import Data.Attoparsec.Text
 import Data.Void
+import Data.Functor (($>))
+import Data.Bifunctor
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
