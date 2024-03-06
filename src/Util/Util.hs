@@ -157,6 +157,9 @@ hammerNStat :: Int -> (a -> a) -> a -> a
 hammerNStat 0 _ v = v
 hammerNStat n f v = hammerN (trace (show n ++ "\n") $ n - 1) f (f v)
 
+setConcatMap :: (Ord a, Ord b) => (a -> Set b) -> Set a -> Set b
+setConcatMap f = Set.unions . map f . Set.toList
+
 maximumOn :: (Ord b) => (a -> b) -> [a] -> a
 maximumOn f [] = error "empty list"
 maximumOn f (x:xs) = g x (f x) xs
