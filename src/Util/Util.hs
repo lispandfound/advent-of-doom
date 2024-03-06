@@ -169,22 +169,6 @@ maximumOn f (x:xs) = g x (f x) xs
                       | otherwise = g v mv xs
             where mx = f x
 
-
-data MatchVerts = Source | Sink | U Int | V Int deriving (Show, Eq)
-
-
-instance Ord MatchVerts where
-  compare Source _ = LT
-  compare _ Source = GT
-  compare Sink _ = LT
-  compare _ Sink = GT
-  compare (U _) (V _) = LT
-  compare (V _) (U _) = GT
-  compare (U a) (U b) = compare a b
-  compare (V a) (V b) = compare a b
-
-
-
 mapPair :: (Applicative f) => (a -> f c, b -> f d) -> (a,b) -> f (c,d)
 mapPair fg = uncurry (liftA2 (,)) . pmap fg
   where pmap (f, g) (a, b) = (f a, g b)
