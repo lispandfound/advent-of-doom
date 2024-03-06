@@ -53,10 +53,14 @@ library
       Days.Day25
       Program.Color
       Program.RunDay
-      Util.Pair
       Util.Coordinates
+      Util.OpenSet
+      Util.Pair
       Util.Parsers
       Util.Util
+      Util.Matching
+      Util.CList
+      Util.Modular
   other-modules:
       Paths_aoc_template
   hs-source-dirs:

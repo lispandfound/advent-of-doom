@@ -2,6 +2,9 @@ module Util.Util where
 
 {- ORMOLU_DISABLE -}
 import Data.Map.Strict (Map)
+import Data.Set (Set)
+import Data.Tuple
+import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
 import Debug.Trace (trace)
 import Data.List
@@ -9,6 +12,9 @@ import Data.Maybe
 import Control.Monad
 import Data.Tree
 import Math.Combinatorics.Exact.Binomial
+import qualified Data.Set as Set
+import Control.Applicative
+import Data.Graph.Inductive
 {- ORMOLU_ENABLE -}
 
 {-
@@ -67,6 +73,11 @@ list !!? index =
       | index >= (length list) -> Nothing
       | otherwise -> Just $ list !! index
 
+findMaybe :: (a -> Maybe b) -> [a] -> Maybe b
+findMaybe f = (!!? 0) . mapMaybe f
+
+intersections :: Ord a => [Set a] -> Set a
+intersections = foldr1 Set.intersection
 -- Given a map where the keys are co-ordinates, returns the minimum x, maximum x, minimum y, and maximum y; in that order.
 mapBoundingBox :: Map (Int, Int) a -> (Int, Int, Int, Int)
 mapBoundingBox m =
@@ -94,7 +105,7 @@ slice :: Int -> Int -> [a] -> [a]
 slice i j = take (j - i + 1) . drop i
 
 mapAdjacent :: (a -> a -> b) -> [a] -> [b]
-mapAdjacent f l = map (uncurry f) $ zip l (tail l)
+mapAdjacent f l = zipWith f l (tail l)
 
 orderedPartitions :: Integral a => a -> a -> a
 orderedPartitions n k = sum . map (choose (n - 1)) $ [0..k - 1]
@@ -104,3 +115,82 @@ hammer f x
   | x' == x = x'
   | otherwise = hammer f x'
   where x' = f x
+
+
+
+minimumOn :: (Foldable t, Ord b) => (a -> b) -> t a -> a
+minimumOn f = minimumBy go
+  where go x y = compare (f x) (f y)
+
+
+egcd :: Integral a => a -> a -> (a, a)
+egcd a b = go a b 1 0 0 1
+  where
+    go _ 0 s _ t _ = (s, t)
+    go rp r sp s tp t = go r (rp - q * r) s (sp - q * s) t (tp - q * t)
+      where q = rp `div` r
+
+-- crt x1 x2 m1 m2 solves the simultaneous equation x = x1 mod m1, x = x2 mod m2 using the chinese remainder theorem
+-- assumes gcd m1 m2 == 1
+-- returns the smallest positive solution
+crt :: Integral a => a -> a -> a -> a -> a
+crt x1 x2 m1 m2 = mabs . (`mod` (m1 * m2)) $ x2 * s * m1 + x1 * t * m2
+  where (s, t) = egcd m1 m2
+        mabs x = if x > 0 then x else m1 * m2 - x
+
+-- crtSystem solves the simultaneous equations x = xi mod mi for some list [(xi, mi), ...]
+-- assumes gcd mi mj == 1
+-- returns the smallest positive solution
+crtSystem :: Integral a => [(a, a)] -> a
+crtSystem = fst . foldr1 (\(x1, m1) (x2, m2) -> (crt x1 x2 m1 m2, m1 * m2))
+
+iterateM :: Monad m => (a -> m a) -> a -> m [a]
+iterateM f x = do
+    x' <- f x
+    (x':) `liftM` iterateM f x'
+
+hammerN :: Int -> (a -> a) -> a -> a
+hammerN 0 _ v = v
+hammerN n f v = hammerN (n - 1) f (f v)
+
+hammerNStat :: Int -> (a -> a) -> a -> a
+hammerNStat 0 _ v = v
+hammerNStat n f v = hammerN (trace (show n ++ "\n") $ n - 1) f (f v)
+
+setConcatMap :: (Ord a, Ord b) => (a -> Set b) -> Set a -> Set b
+setConcatMap f = Set.unions . map f . Set.toList
+
+maximumOn :: (Ord b) => (a -> b) -> [a] -> a
+maximumOn f [] = error "empty list"
+maximumOn f (x:xs) = g x (f x) xs
+    where
+        g v mv [] = v
+        g v mv (x:xs) | mx > mv = g x mx xs
+                      | otherwise = g v mv xs
+            where mx = f x
+
+
+data MatchVerts = Source | Sink | U Int | V Int deriving (Show, Eq)
+
+
+instance Ord MatchVerts where
+  compare Source _ = LT
+  compare _ Source = GT
+  compare Sink _ = LT
+  compare _ Sink = GT
+  compare (U _) (V _) = LT
+  compare (V _) (U _) = GT
+  compare (U a) (U b) = compare a b
+  compare (V a) (V b) = compare a b
+
+
+
+mapPair :: (Applicative f) => (a -> f c, b -> f d) -> (a,b) -> f (c,d)
+mapPair fg = uncurry (liftA2 (,)) . pmap fg
+  where pmap (f, g) (a, b) = (f a, g b)
+
+intMap :: Ord a => [a] -> Map a Int
+intMap = Map.fromList . (`zip` [0..])
+
+mapFromFunction :: Ord a => (a -> b) -> [a] -> Map a b
+mapFromFunction f = Map.fromList . map (\x -> (x, f x))
