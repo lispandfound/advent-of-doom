@@ -1,7 +1,7 @@
 module Days.Day25 (runDay) where
 
 {- ORMOLU_DISABLE -}
-import Data.List
+import Data.List as List
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -21,19 +21,30 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = error "Not implemented yet!"
+inputParser = (,) <$> decimal <*> (endOfLine *> decimal)
 
 ------------ TYPES ------------
-type Input = Void
+type Input = (Integer, Integer)
 
-type OutputA = Void
+type OutputA = Integer
 
-type OutputB = Void
+type OutputB = String
+
+subjectNumber :: Integer
+subjectNumber = 7
+
+modulus :: Integer
+modulus = 20201227
+
+dlog :: Integer -> Integer -> Integer -> Maybe Integer
+dlog a b n = fmap fromIntegral . elemIndex b . List.take (fromInteger n - 1) $ iterate ((`mod` n) . (a *)) 1
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA = error "Not implemented yet!"
+partA (cardKey, doorKey) = doorKey ^ cardLoop `mod` modulus
+  where Just cardLoop = dlog 7 cardKey modulus
+        Just doorLoop = dlog 7 doorKey modulus
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB = error "Not implemented yet!"
+partB = const "This one was free!"
