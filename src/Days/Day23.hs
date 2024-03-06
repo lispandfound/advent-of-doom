@@ -35,7 +35,7 @@ type Input = CList Int
 
 type OutputA = CList Int
 
-type OutputB = Seq Int
+type OutputB = String
 
 
 step :: Int -> CList Int -> CList Int
@@ -55,4 +55,5 @@ partA = U.hammerN 100 (step 9)
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB cl = CL.rightNElements 3 . fromJust . CL.rotateTo 1 . U.hammerN 10000000 (step 1000000) $ CL.insertFarRight cl (Seq.fromList [10..1000000])
+partB cl = "This one is slow!"
+  -- CL.rightNElements 3 . fromJust . CL.rotateTo 1 . U.hammerN 10000000 (step 1000000) $ CL.insertFarRight cl (Seq.fromList [10..1000000])

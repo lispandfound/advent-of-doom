@@ -20,6 +20,7 @@ import Util.OpenSet (OpenSet)
 import Debug.Trace
 import Data.Bifunctor (bimap)
 import qualified Data.Text as Text
+import Util.Matching (matching)
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
@@ -79,4 +80,4 @@ partB inp = product . map snd . filter (("departure" `Text.isPrefixOf`). fst). M
     names = Map.keys . fields $ inp
     nameIndexLookup = Map.fromList $ zip names [0..]
     edges = concatMap (\(k, v) -> map (fromJust $ Map.lookup k nameIndexLookup,) v) . Map.toList $ fieldIndexCandidates
-    mapping = Map.fromList . map (bimap (names !!) (ticket inp !!)) . Map.toList . U.matching $ edges
+    mapping = Map.fromList . map (bimap (names !!) (ticket inp !!)) . Map.toList . matching . Set.fromList $ edges

@@ -59,7 +59,7 @@ partA :: Input -> OutputA
 partA inst = manhattan $ evalState (mapM_ execute inst >> position) initialState
   where
     position = gets pos
-    move vec = modify (\st -> st { pos = vec <+> pos st })
+    move vec = modify (\st -> st { pos = vec + pos st })
     rotate count = modify (\st -> st { heading = (count + heading st) `mod` 4 })
     headingVec = gets $ Pair . ([(1, 0), (0, -1), (-1, 0), (0, 1)] !!) . heading
     execute (North x) = move . Pair $ (0, x)
@@ -80,8 +80,8 @@ partB inst = manhattan $ evalState (forM_ inst execute >> position) initialState
     position = gets shipPos
     left = modify (\st -> st { waypointPos = pmap swap . second negate $ waypointPos st })
     right = modify (\st -> st { waypointPos = pmap swap . first negate $ waypointPos st })
-    move vec = modify (\st -> st { shipPos = vec <+> shipPos st })
-    moveW vec = modify (\st -> st { waypointPos = vec <+> waypointPos st })
+    move vec = modify (\st -> st { shipPos = vec + shipPos st })
+    moveW vec = modify (\st -> st { waypointPos = vec + waypointPos st })
     execute (North x) = moveW . Pair $ (0, x)
     execute (South x) = moveW . Pair $ (0, -x)
     execute (East x) = moveW . Pair $ (x, 0)

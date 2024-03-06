@@ -14,6 +14,7 @@ import qualified Util.Util as U
 import qualified Program.RunDay as R (runDay, Day)
 import Data.Attoparsec.Text
 import Data.Void
+import Util.Modular (Modular)
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
@@ -30,8 +31,6 @@ type OutputA = Integer
 
 type OutputB = String
 
-subjectNumber :: Integer
-subjectNumber = 7
 
 modulus :: Integer
 modulus = 20201227

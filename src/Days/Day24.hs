@@ -27,7 +27,7 @@ runDay = R.runDay inputParser partA partB
 inputParser :: Parser Input
 inputParser = directions `sepBy` endOfLine
   where
-    directions = foldr1 (<+>) <$> many1 direction
+    directions = sum <$> many1 direction
     direction =
       choice
         [ "se" $> Pair (0, 1),
@@ -57,11 +57,11 @@ partB :: Input -> OutputB
 partB = Set.size . hammerN 100 go . floorSet
   where go fs = Set.filter (rule fs) . neighbours $ fs
         neighbourSteps = [Pair (0, 1), Pair (1, -1), Pair (0, -1), Pair (-1, 1), Pair (1, 0), Pair (-1, 0)]
-        neighbours = U.setConcatMap (\p -> Set.fromList $ p:map (p <+>) neighbourSteps)
+        neighbours = U.setConcatMap (\p -> Set.fromList $ p:map (p +) neighbourSteps)
         rule fs p
           | not live && neighbours == 2 = True
           | live && (neighbours == 0 || neighbours > 2) = False
           | otherwise = live
           where
             live = p `Set.member` fs
-            neighbours = U.count (`Set.member` fs) . map (p <+>) $ neighbourSteps
+            neighbours = U.count (`Set.member` fs) . map (p +) $ neighbourSteps
