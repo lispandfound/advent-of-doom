@@ -149,10 +149,13 @@ iterateM f x = do
     x' <- f x
     (x':) `liftM` iterateM f x'
 
-hammerN :: Eq a => Int -> (a -> a) -> a -> a
+hammerN :: Int -> (a -> a) -> a -> a
 hammerN 0 _ v = v
-hammerN n f v = let v' = f v in
-                 if v == v' then v else hammerN (n - 1) f v'
+hammerN n f v = hammerN (n - 1) f (f v)
+
+hammerNStat :: Int -> (a -> a) -> a -> a
+hammerNStat 0 _ v = v
+hammerNStat n f v = hammerN (trace (show n ++ "\n") $ n - 1) f (f v)
 
 maximumOn :: (Ord b) => (a -> b) -> [a] -> a
 maximumOn f [] = error "empty list"

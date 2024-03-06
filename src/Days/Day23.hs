@@ -11,13 +11,15 @@ import Data.Vector (Vector)
 import qualified Data.Vector as Vec
 import qualified Util.Util as U
 
+import qualified Data.Sequence as Seq
+import Data.Sequence (Seq)
 import qualified Program.RunDay as R (runDay, Day)
 import Data.Attoparsec.Text
 import Data.Void
 import Data.Char (digitToInt)
 import Control.Applicative
-import Data.CircularList (CList)
-import qualified Data.CircularList as CL
+import Util.CList (CList)
+import qualified Util.CList as CL
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
@@ -31,25 +33,26 @@ inputParser = CL.fromList <$> many (digitToInt <$> digit)
 
 type Input = CList Int
 
-type OutputA = String
+type OutputA = CList Int
 
-type OutputB = Void
+type OutputB = Seq Int
+
+
+step :: Int -> CList Int -> CList Int
+step m cl = cl'
+  where
+    Just x = CL.focus cl
+    top = CL.rightNElements 3 . CL.removeR $ cl
+    smallCl :: CList Int
+    smallCl = U.hammerN 3 CL.removeR (CL.rotR cl)
+    Just dest = find (isNothing . (`Seq.elemIndexL` top)) $ [x - 1, x - 2 .. 1] ++ [m, m - 1 ..]
+    Just smallClF = CL.rotateTo dest smallCl
+    Just cl' = fmap CL.rotR . CL.rotateTo x . CL.insertLS smallClF $ top
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA = foldMap show . tail . CL.rightElements . fromJust . CL.rotateTo 1 . U.hammerN 100 go
-  where go cl = cl'
-          where
-            Just x = CL.focus cl
-            top = List.take 3 . CL.rightElements . CL.removeR $ cl
-            smallCl = U.hammerN 3 CL.removeR (CL.rotR cl)
-            smallerThanXCL = CL.filterR (< x) smallCl
-            dest = maximum . CL.rightElements $ if smallerThanXCL == CL.empty then smallCl else smallerThanXCL
-            Just smallClF = CL.rotateTo dest smallCl
-            Just cl' = fmap CL.rotR . CL.rotateTo x . foldr CL.insertL smallClF . reverse $ top
-
-
+partA = U.hammerN 100 (step 9)
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB = error "Not implemented yet!"
+partB cl = CL.rightNElements 3 . fromJust . CL.rotateTo 1 . U.hammerN 10000000 (step 1000000) $ CL.insertFarRight cl (Seq.fromList [10..1000000])
