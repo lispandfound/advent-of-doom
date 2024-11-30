@@ -59,20 +59,24 @@ dayParser = (OneDay <$> day <*> input) <|> allDays
   where
     day =
       option auto $
-        long "day" <> short 'd' <> metavar "DAY"
+        long "day"
+          <> short 'd'
+          <> metavar "DAY"
           <> help "Present the solutions for one day."
 
     input =
       optional $
         strOption $
-          long "input" <> short 'i' <> metavar "FILE"
+          long "input"
+            <> short 'i'
+            <> metavar "FILE"
             <> help "The file to read the selected day's input from."
 
     allDays =
       flag' AllDays $
         long "all-days"
           <> help
-            ( unwords
+            ( toString . unwords $
                 [ "Present solutions for all of the days of",
                   "Advent of Code, with default input file names."
                 ]
@@ -84,24 +88,28 @@ optionsParser = Options <$> dayParser <*> verbosityParser
     verbosityParser :: Parser Verbosity
     verbosityParser =
       C.option Quiet $
-        ( flag' Verbose $
-            long "verbose" <> short 'v'
+        flag'
+          Verbose
+          ( long "verbose"
+              <> short 'v'
               <> help
-                ( unwords
+                ( toString . unwords $
                     [ "Whether to print out extra info, such as the",
                       "result of the input parser, and more detailed",
                       "error messages.",
                       "Also enables timing of solutions."
                     ]
                 )
-        )
-          <|> ( flag' Timings $
-                  long "timings" <> short 't'
-                    <> help
-                      ( unwords
-                          ["Whether to enable timing of the solutions."]
-                      )
-              )
+          )
+          <|> flag'
+            Timings
+            ( long "timings"
+                <> short 't'
+                <> help
+                  ( toString . unwords $
+                      ["Whether to enable timing of the solutions."]
+                  )
+            )
 
 days :: Map Int (Day, String)
 days =

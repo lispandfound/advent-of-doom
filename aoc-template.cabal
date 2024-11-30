@@ -1,4 +1,4 @@
-cabal-version: 1.12
+cabal-version: 3.6
 
 -- This file has been generated from package.yaml by hpack version 0.34.5.
 --
@@ -14,7 +14,7 @@ bug-reports:    https://github.com/samcoy3/advent-of-code-template/issues
 author:         Sam Coy
 maintainer:     samcoy3@gmail.com
 copyright:      2023 Sam Coy
-license:        BSD3
+license:        BSD-3-Clause
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
@@ -66,28 +66,41 @@ library
   hs-source-dirs:
       src
   default-extensions:
+      AllowAmbiguousTypes       
+      DataKinds                 
+      DeriveGeneric             
+      DuplicateRecordFields     
+      FlexibleContexts          
+      NoMonomorphismRestriction 
+      TypeApplications          
       LambdaCase
       MultiWayIf
       RecordWildCards
       OverloadedRecordDot
+      OverloadedLabels
       OverloadedStrings
       GADTs
       GHC2021
   build-depends:
-      ansi-terminal
+      base ^>= 4.14
+    , ansi-terminal
     , attoparsec
-    , base >=4.7 && <5
     , containers
     , directory
     , exact-combinatorics
-    , fgl
+    , generic-lens
     , mtl
+    , lens
     , optparse-applicative
     , parser-combinators
+    , relude
     , text
     , time
     , vector
   default-language: Haskell2010
+  mixins:   base hiding (Prelude)
+          , relude (Relude as Prelude)
+          , relude
 
 executable aoc-template-exe
   main-is: Main.hs
@@ -103,20 +116,33 @@ executable aoc-template-exe
       OverloadedStrings
       GADTs
       GHC2021
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N4 -with-rtsopts=-qa -with-rtsopts=-C0 -funfolding-use-threshold=16 -fexcess-precision -optc-O3 -optc-ffast-math -O2
+  ghc-options:
+      -threaded
+      -rtsopts
+      -with-rtsopts=-N4
+      -with-rtsopts=-qa
+      -with-rtsopts=-C0
+      -funfolding-use-threshold=16
+      -fexcess-precision
+      -optc-O3
+      -optc-ffast-math
+      -O2
   build-depends:
-      ansi-terminal
+      base ^>= 4.14
+    , ansi-terminal
     , aoc-template
     , attoparsec
-    , base >=4.7 && <5
     , containers
     , directory
     , exact-combinatorics
-    , fgl
     , mtl
     , optparse-applicative
     , parser-combinators
+    , relude
     , text
     , time
     , vector
   default-language: Haskell2010
+  mixins:   base hiding (Prelude)
+          , relude (Relude as Prelude)
+          , relude

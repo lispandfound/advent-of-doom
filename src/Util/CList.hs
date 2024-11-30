@@ -1,14 +1,16 @@
--- |
-
 module Util.CList where
 
-import Data.Sequence (Seq(..), ViewR(..), ViewL(..), (<|), (|>), (><))
-import qualified Data.Sequence as Seq
+import Control.Lens (folded, maximumOf, to, (^..))
+import Data.Generics.Labels ()
+import Data.Sequence (Seq (..), ViewL (..), ViewR (..), (<|), (><), (|>))
+import Data.Sequence qualified as Seq
+import Text.Show (Show (show))
+import Text.Show as TS
 
-data CList a = Null | CList (Seq a) a (Seq a)
+data CList a = Null | CList (Seq a) a (Seq a) deriving (Generic)
 
-instance Show a => Show (CList a) where
-  show (CList l x r) = "CList (" ++ show l ++ ") " ++ show x ++ " (" ++ show r ++ ")"
+instance (Show a) => Show (CList a) where
+  show (CList l x r) = "CList (" <> foldMap TS.show l <> ") " <> TS.show x <> " (" <> foldMap TS.show r <> ")"
 
 singleton :: a -> CList a
 singleton x = CList mempty x mempty
@@ -32,7 +34,7 @@ rightNElements :: Int -> CList a -> Seq a
 rightNElements 0 _ = mempty
 rightNElements k (CList l x r) = (x <| Seq.take (max 0 $ k - 1) r) >< Seq.take (max 0 $ k - 1 - Seq.length r) l
 
-rotateTo :: Eq a => a -> CList a -> Maybe (CList a)
+rotateTo :: (Eq a) => a -> CList a -> Maybe (CList a)
 rotateTo _ Null = Nothing
 rotateTo y cl@(CList l x r)
   | x == y = pure cl
@@ -44,13 +46,12 @@ rotateTo y cl@(CList l x r)
 
 fromList :: [a] -> CList a
 fromList [] = Null
-fromList (x:xs) = CList mempty x (Seq.fromList xs)
+fromList (x : xs) = CList mempty x (Seq.fromList xs)
 
 rotR :: CList a -> CList a
 rotR (CList l x (y :<| rs)) = CList (l |> x) y rs
 rotR (CList (y :<| ls) x Empty) = CList (Seq.singleton x) y ls
 rotR _ = Null
-
 
 removeR :: CList a -> CList a
 removeR (CList l x (y :<| rs)) = CList l y rs
@@ -78,5 +79,5 @@ insertFarRight x Empty = x
 insertFarRight Null (x :<| xs) = CList mempty x xs
 insertFarRight (CList l x r) xs = CList l x (r >< xs)
 
-maxEl :: Ord a => CList a -> a
-maxEl = maximum . rightElements
+maxEl :: (Ord a) => CList a -> Maybe a
+maxEl = maximumOf folded . rightElements
