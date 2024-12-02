@@ -34,10 +34,12 @@ type OutputA = Int
 type OutputB = Int
 
 pairwiseDifference :: [Int] -> [Int]
-pairwiseDifference = map (uncurry (-)) . U.pairs
+pairwiseDifference = zipWith (-) <*> List.tail
 
 safe :: [Int] -> Bool
-safe = uncurry (&&) . (all ((<= 3) . abs) &&& ((`List.elem` [Set.singleton (-1), Set.singleton 1]) . Set.fromList . map signum))
+safe = all ((<= 3) . abs) `and` ((`List.elem` [Set.singleton (-1), Set.singleton 1]) . Set.fromList . map signum)
+  where
+    and = liftA2 (&&)
 
 ------------ PART A ------------
 partA :: Input -> OutputA
