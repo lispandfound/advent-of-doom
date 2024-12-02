@@ -10,6 +10,7 @@ import qualified Data.Set as Set
 import Data.Vector (Vector)
 import qualified Data.Vector as Vec
 import qualified Util.Util as U
+import Util.Parsers
 
 import qualified Program.RunDay as R (runDay, Day)
 import Data.Attoparsec.Text
@@ -23,19 +24,27 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = error "Not implemented yet!"
+inputParser = linesOf $ decimal `sepBy1` " "
 
 ------------ TYPES ------------
-type Input = Void
+type Input = [[Int]]
 
-type OutputA = Void
+type OutputA = Int
 
-type OutputB = Void
+type OutputB = Int
+
+pairwiseDifference :: [Int] -> [Int]
+pairwiseDifference = map (uncurry (-)) . U.pairs
+
+safe :: [Int] -> Bool
+safe = uncurry (&&) . (all ((<= 3) . abs) &&& ((`List.elem` [Set.singleton (-1), Set.singleton 1]) . Set.fromList . map signum))
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA = error "Not implemented yet!"
+partA = U.count (safe . pairwiseDifference)
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB = error "Not implemented yet!"
+partB = U.count (any (safe . pairwiseDifference) . allButOne)
+  where
+    allButOne l = map (uncurry (<>) . second (drop 1) . flip splitAt l) [0 .. length l]

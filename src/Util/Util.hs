@@ -19,6 +19,15 @@ import Control.Lens
 This module contains a series of miscellaneous utility functions that I have found helpful in the past.
 -}
 
+(<<) :: (Monad m) => m a -> m b -> m a
+a << b = do
+  x <- a
+  b
+  return x
+
+pairs :: [a] -> [(a, a)]
+pairs = zip <*> drop 1
+
 -- Takes a list.
 -- Returns a map from elements of that list to the number of times they appeared in the list.
 freq :: (Ord a) => [a] -> Map a Int

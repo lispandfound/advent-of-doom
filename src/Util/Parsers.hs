@@ -1,12 +1,13 @@
 module Util.Parsers where
 
-import Data.Text
-import Util.Coordinates
+import Control.Applicative (many, (<|>))
 import Data.Attoparsec.Text
+import Data.Char (isDigit, ord)
 import Data.List as List
 import Data.Map (Map)
-import Control.Applicative (many, (<|>))
-import qualified Data.Map as Map
+import Data.Map qualified as Map
+import Data.Text
+import Util.Coordinates
 
 {-
 This module contains a list of parsers and combinators which are likely to be useful for Advent of Code problems.
@@ -30,13 +31,21 @@ coordinateParser p start = coordinateParser' start start
 
 ------------ COMBINATORS ------------
 
--- Takes a parser and a separator. Parses one instance of the parser before the separator and one afterwards, returning the parsed values as a pair.
+-- Takes a parser and a separator. Parses one instance of the parser before
+-- the separator and one afterwards, returning the parsed values as a pair.
 around :: Parser a -> Parser b -> Parser (a, a)
 around p sep = do
   a <- p
   sep
   b <- p
   return (a, b)
+
+between :: Parser a -> Parser b -> Parser c -> Parser c
+between l r p = do
+  l
+  x <- p
+  r
+  return x
 
 asText :: Parser String -> Parser Text
 asText = fmap pack
@@ -46,14 +55,21 @@ takeText = asText . many
 
 chainr1 :: Parser a -> Parser (a -> a -> a) -> Parser a
 chainr1 term op = scan
-  where scan = term >>= rest
-        rest x = (op <*> pure x <*> scan) <|> pure x
+  where
+    scan = term >>= rest
+    rest x = (op <*> pure x <*> scan) <|> pure x
 
 chainl1 :: Parser a -> Parser (a -> a -> a) -> Parser a
 chainl1 term op = scan
-  where scan = term >>= rest
-        rest x = ((op <*> pure x <*> term) >>= rest) <|> pure x
-
+  where
+    scan = term >>= rest
+    rest x = ((op <*> pure x <*> term) >>= rest) <|> pure x
 
 countMatch :: Parser a -> Parser Int
 countMatch = fmap List.length . many1
+
+linesOf :: Parser a -> Parser [a]
+linesOf p = p `sepBy` char '\n'
+
+digit :: (Num a) => Parser a
+digit = fromIntegral . (\x -> x - ord '0') . ord <$> satisfy isDigit
