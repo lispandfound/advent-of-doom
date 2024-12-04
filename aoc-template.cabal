@@ -89,6 +89,7 @@ library
     , directory
     , exact-combinatorics
     , replace-attoparsec
+    , fgl
     , generic-lens
     , mtl
     , lens
