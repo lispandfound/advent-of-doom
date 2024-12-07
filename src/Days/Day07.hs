@@ -52,7 +52,7 @@ partA = List.sum . map fst . filter (\(target, terms) -> target `List.elem` go t
 
 -- NOTE: I am quite aware one could do this in reverse and test divisibility, subtractability (is that even a word?) and suffixes for maximum pruning potential.
 -- But this partB already executes in 3ms anyway on my laptop with no parallelisation.
--- This is faster than many of the Rust solutions I spotted on adventofcode. If they get to boast about their speed without doing anything special,
+-- This is faster than many of the Rust solutions I spotted on r/adventofcode. If they get to boast about their speed without doing anything special,
 -- I'm allowed to boast about speed without doing anything either!
 
 
