@@ -16,8 +16,6 @@ import Data.Attoparsec.Text (Parser, anyChar)
 import Data.Void
 import Data.Functor (($>))
 import Data.Bifunctor
-import Data.Graph.Inductive.Graph
-import Data.Graph.Inductive.PatriciaTree (Gr(..))
 import Util.Parsers
 import Util.Coordinates
 {- ORMOLU_ENABLE -}

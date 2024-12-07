@@ -20,14 +20,14 @@ coordinateParser :: Parser (Maybe a) -> Int -> Parser (CoordinateMap a)
 coordinateParser p start = coordinateParser' start start
   where
     coordinateParser' x y =
-      choice
-        -- First we look for a line break, and we reset the coordinates appropriately
-        [ endOfLine >> coordinateParser' start (y + 1),
-          -- Then we look for a character, and map it
-          p >>= (\c -> Map.alter (const c) (x, y) <$> coordinateParser' (x + 1) y),
-          -- Catches the EOF
-          return Map.empty
-        ]
+        choice
+            -- First we look for a line break, and we reset the coordinates appropriately
+            [ endOfLine >> coordinateParser' start (y + 1)
+            , -- Then we look for a character, and map it
+              p >>= (\c -> Map.alter (const c) (x, y) <$> coordinateParser' (x + 1) y)
+            , -- Catches the EOF
+              return Map.empty
+            ]
 
 ------------ COMBINATORS ------------
 
@@ -35,17 +35,17 @@ coordinateParser p start = coordinateParser' start start
 -- the separator and one afterwards, returning the parsed values as a pair.
 around :: Parser a -> Parser b -> Parser (a, a)
 around p sep = do
-  a <- p
-  sep
-  b <- p
-  return (a, b)
+    a <- p
+    sep
+    b <- p
+    return (a, b)
 
 between :: Parser a -> Parser b -> Parser c -> Parser c
 between l r p = do
-  l
-  x <- p
-  r
-  return x
+    l
+    x <- p
+    r
+    return x
 
 asText :: Parser String -> Parser Text
 asText = fmap pack
@@ -73,3 +73,6 @@ linesOf p = p `sepBy` char '\n'
 
 digit :: (Num a) => Parser a
 digit = fromIntegral . (\x -> x - ord '0') . ord <$> satisfy isDigit
+
+liftMaybe :: Maybe a -> Parser a
+liftMaybe = maybe (fail "Unwrapping Nothing!") pure
