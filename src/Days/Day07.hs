@@ -71,3 +71,6 @@ partB = List.sum . map fst . filter (\(target, terms) -> go target (List.head te
     --    return False
     -- 2. The filter that acts like "guard" in partA
     go target work (x:xs) = or . map (\w -> go target w xs) . filter (<= target) . map (\f -> f work x) $ [(*), (+), intConcat]
+    -- Why is this faster than the Rust solutions I'm seeing? I guess it might be because of
+    -- laziness plus aggressive loop fusion (the or + map + filter + map are likely fused into one tight machine code loop)
+    -- and maths optimisations with -O2?
