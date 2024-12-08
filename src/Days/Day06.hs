@@ -22,20 +22,6 @@ runDay = R.runDay inputParser partA partB
 
 data Marker = Obstacle | Guard deriving (Show, Eq)
 
-data Heading = U | L | D | R deriving (Show, Eq, Ord)
-
-headingToVector :: Heading -> (Int, Int)
-headingToVector U = (0, -1)
-headingToVector L = (-1, 0)
-headingToVector R = (1, 0)
-headingToVector D = (0, 1)
-
-rotateRight :: Heading -> Heading
-rotateRight U = R
-rotateRight R = D
-rotateRight D = L
-rotateRight L = U
-
 ------------ PARSER ------------
 inputParser :: Parser Input
 inputParser = coordinateParser (("#" $> pure Obstacle) <|> ("^" $> pure Guard) <|> (anyChar $> Nothing)) 0 >>= setup
@@ -67,6 +53,7 @@ walkFrom m bounds initialPosition = takeWhile (inBoundingBox bounds . fst) . go 
 ------------ PART A ------------
 partA :: Input -> OutputA
 partA (Input{obstacleMap = m, initialPosition = initialPosition, bounds = bounds}) = Set.size . Set.fromList . map fst $ walkFrom m bounds initialPosition
+
 
 ------------ PART B ------------
 partB :: Input -> OutputB

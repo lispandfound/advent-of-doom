@@ -59,6 +59,8 @@ convolve f m =
 ray :: Int -> Int -> Int -> Int -> [(Int, Int)]
 ray cx cy dx dy = [(cx + i * dx, cy + i * dy) | i <- [0 ..]]
 
+
+
 rayTillNothing :: CoordinateMap a -> Int -> Int -> Int -> Int -> [a]
 rayTillNothing m cx cy dx dy = catMaybes . takeWhile isJust . map (`Map.lookup` m) $ ray cx cy dx dy
 
@@ -66,6 +68,22 @@ type BoundingBox = (Int, Int, Int, Int)
 
 inBoundingBox :: BoundingBox -> (Int, Int) -> Bool
 inBoundingBox (lx, ux, ly, uy) (x, y) = lx <= x && x <= ux && ly <= y && y <= uy
+
+data Heading = U | L | D | R deriving (Show, Eq, Ord)
+
+headingToVector :: Heading -> (Int, Int)
+headingToVector U = (0, -1)
+headingToVector L = (-1, 0)
+headingToVector R = (1, 0)
+headingToVector D = (0, 1)
+
+rotateRight :: Heading -> Heading
+rotateRight U = R
+rotateRight R = D
+rotateRight D = L
+rotateRight L = U
+
+
 
 -- mapToFollowGraph :: CoordinateMap a -> Gr a ()
 -- mapToFollowGraph = mapToFollowGraphOn (\_ _ -> True)

@@ -1,21 +1,15 @@
 module Days.Day08 (runDay) where
 
 {- ORMOLU_DISABLE -}
-import Data.List as List
-import Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
-import Data.Maybe
-import Data.Set (Set)
-import qualified Data.Set as Set
-import Data.Vector (Vector)
-import qualified Data.Vector as Vec
 import qualified Util.Util as U
+import qualified Data.Map as Map
+import qualified Data.Set as Set
+import Util.Coordinates
+import Util.Parsers
 
 import qualified Program.RunDay as R (runDay, Day)
-import Data.Attoparsec.Text
-import Data.Void
-import Data.Functor (($>))
-import Data.Bifunctor
+import Data.Char (isAlphaNum)
+import Data.Attoparsec.Text hiding (takeWhile)
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
@@ -23,19 +17,42 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = error "Not implemented yet!"
+inputParser = do
+  _a <- coordinateParser (pure <$> satisfy isAlphaNum <|> "." $> pure '.' <|> anyChar $> Nothing) 0
+  bounds <- liftMaybe $ U.mapBoundingBox _a
+  return $ Input (Map.filter (/= '.') _a) bounds
 
 ------------ TYPES ------------
-type Input = Void
+data Input = Input {antennas :: CoordinateMap Char, bounds :: BoundingBox} deriving (Show)
 
-type OutputA = Void
+type OutputA = Int
 
-type OutputB = Void
+type OutputB = Int
+
+antinode :: (Int, Int) -> (Int, Int) -> (Int, Int)
+antinode (a, b) (c, d) = (a + 2 * dx, b + 2 * dy)
+  where dx = c - a
+        dy = d - b
+
+antinodes :: (Int, Int) -> (Int, Int) -> [(Int, Int)]
+antinodes (a, b) (c, d) = ray a b dx dy
+  where dx = c - a
+        dy = d - b
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA = error "Not implemented yet!"
+partA (Input {antennas = m, bounds = bounds}) = Set.size . Set.fromList . filter (inBoundingBox bounds) $ do
+      (ptA, freqA) <- points
+      (ptB, freqB) <- points
+      guard $ ptA /= ptB && freqA == freqB
+      return $ antinode ptA ptB
+  where points = Map.toList m
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB = error "Not implemented yet!"
+partB (Input {antennas = m, bounds = bounds}) = Set.size . Set.fromList $ do
+      (ptA, freqA) <- points
+      (ptB, freqB) <- points
+      guard $ ptA /= ptB && freqA == freqB
+      takeWhile (inBoundingBox bounds) $ antinodes ptA ptB
+  where points = Map.toList m
